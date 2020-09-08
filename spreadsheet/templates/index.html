@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <style>
+            td{
+                width: 80px;
+                height: 15px;
+                border-radius: 0%;
+                padding: 0px;
+                border-color:gray;
+            }
+
+            input:focus{
+                border-color: red;
+            }
+
+            input{
+                width: 80px;
+                height: 15px;
+                border:none;
+            }
+
+            table{
+                border-collapse: collapse;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Arkusz1</h1>
+
+        <table border="1">
+        {% for i in cell %}
+        <tr></tr>
+            {% for j in i %}
+                <td><input type="text" value="{{ j }}" class="tab-cell"></td>
+            {% endfor %}
+        {% endfor %}
+    </body>
+</html>
+
+
+<!--
+{% for i in rows %}
+<tr>
+    {% for j in columns %}
+    <input type="text" value="{{ l }}"><td></td> 
+    {% endfor %}
+</tr>
+{% endfor %} -->
