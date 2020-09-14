@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from spreadsheet.views import MemberList
 
 urlpatterns = [
-    path('', include('spreadsheet.urls')),
+    path('sheet/', MemberList.as_view()),
     path('admin/', admin.site.urls),
-
+    path('', include('gsheets.urls')),
 ]

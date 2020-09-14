@@ -25,12 +25,14 @@ SECRET_KEY = '=p_2266=(_v14q-9o9u7u9v91kk)b=#0$*!!07i4mv^8_2e4s6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['06cb121c65c4.ngrok.io']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'gsheets',
+    'spreadsheet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -118,3 +120,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+GSHEETS = {
+    'CLIENT_SECRETS': '/home/praktykant/Documents/Kopia/credentials.json'
+}

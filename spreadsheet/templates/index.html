@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-{% load static %}
 <html>
     <head>
         <style>
@@ -27,24 +26,27 @@
         </style>
     </head>
     <body>
-        <h1>Arkusz1</h1>
-
-        <table border="1">
-        {% for i in cell %}
-        <tr></tr>
-            {% for j in i %}
-                <td><input type="text" value="{{ j }}" class="tab-cell"></td>
+        <h1>{{ sheetTitle }}</h1>
+        <button>Zapisz</button>
+        <form method="POST">
+            <table border="1">
+            {% for i in cell %}
+            <tr></tr>
+                {% for j in i %}
+                    <td><input type="text" value="{{ j }}" class="tab-cell" name =""></td>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
+            </table>
+        </form>
+        <script>
+            function setCellName(){
+                var cls = document.getElementsByClassName("tab-cell")
+                for(i = 0, length = cls.length; i < length; i++ ){
+                    cls[i].name = i+1
+                }
+            }
+            
+            setCellName()
+        </script>
     </body>
 </html>
-
-
-<!--
-{% for i in rows %}
-<tr>
-    {% for j in columns %}
-    <input type="text" value="{{ l }}"><td></td> 
-    {% endfor %}
-</tr>
-{% endfor %} -->
