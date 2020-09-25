@@ -1,14 +1,14 @@
 from django.contrib import admin
 from .models import DaneArkusza
 from django.contrib.admin.views.decorators import staff_member_required
-from django.conf.urls import include, url
-from django.http import HttpResponse, HttpResponseRedirect
-
+from django.conf.urls import url
+from django.http import HttpResponseRedirect
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 @staff_member_required
 def getData(request):
-    print("\nFUNKCJA DZIAŁA\n")
     DaneArkusza.getDataFromSheet()
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
@@ -22,13 +22,6 @@ class AdmSite(admin.ModelAdmin):
         return my_urls + urls
     list_display = ['Imie', 'Nazwisko', 'Email', 'Numer_telefonu', 'Adres']
     change_list_template = "admin/changelist.html"
+    search_fields = ['Imie', 'Nazwisko']
 
 admin.site.register(DaneArkusza, AdmSite)
-
-"""
-class AdmSite(admin.ModelAdmin):
-    list_display = ['Imie', 'Nazwisko', 'Email', 'Numer_telefonu', 'Adres']
-    change_list_template = "admin/changelist.html"
-
-admin.site.register(DaneArkusza, AdmSite)
-"""
