@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ['06cb121c65c4.ngrok.io', 'localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
-    'gsheets',
+    'gspread',
     'spreadsheet',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -120,7 +120,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
-GSHEETS = {
-    'CLIENT_SECRETS': '/home/praktykant/Documents/Kopia/credentials.json'
-}
