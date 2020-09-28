@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
@@ -25,23 +25,30 @@ class DaneArkusza(models.Model):
 
     def getDataFromSheet():
         x = DaneArkusza.sheet.get_all_values()[1:]
-        data = DaneArkusza.sheet.col_values(1)[1:]
-        data2 = list(DaneArkusza.objects.values_list('id', flat=True))
-        print(data)
-        """
+        post_save.disconnect(DaneArkusza, dispatch_uid='Sygnal')
         try:
             for i in x:
-                record = DaneArkusza(
-                Imie = i[1:][0],
-                Nazwisko = i[1:][1],
-                Email = i[1:][2],
-                Numer_telefonu = i[1:][3],
-                Adres = i[1:][4]
-                )
-                record.save()
+                if i[0] =='':
+                    record = DaneArkusza(
+                        Imie = i[1],
+                        Nazwisko = i[2],
+                        Email = i[3],
+                        Numer_telefonu = i[4],
+                        Adres = i[5]
+                    )
+                    record.save()
+                else:
+                    record = DaneArkusza(
+                        id = i[0],
+                        Imie = i[1],
+                        Nazwisko = i[2],
+                        Email = i[3],
+                        Numer_telefonu = i[4],
+                        Adres = i[5]
+                    )
+                    record.save()
         except IndexError:
             pass
-        """
 
 
 @receiver(post_save, sender = DaneArkusza)
@@ -51,10 +58,22 @@ def updateSheet(sender, **kwargs):
 
 @receiver(post_delete, sender = DaneArkusza)
 def deleteSheetData(sender, **kwargs):
-    data = DaneArkusza.sheet.col_values(1)[1:]
-
+    x = list(DaneArkusza.objects.values_list('id', flat=True))
+    y = DaneArkusza.sheet.col_values(1)[1:]
+    while '' in y:
+        y.remove('')
+    y = list(map(int, y))
+    a = list(set(y) - set(x))
+    try:
+        a.remove('')
+    except ValueError:
+        pass
+   
+    z = DaneArkusza.sheet.find(str(a[0]))
+    DaneArkusza.sheet.delete_row(z.row)
 
 """
+TODO
 class Faktura(models.Model):
     id = models.AutoField()
     Klient = models.ForeignKey()
