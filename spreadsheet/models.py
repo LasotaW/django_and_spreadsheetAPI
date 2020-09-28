@@ -1,6 +1,5 @@
 from django.db import models
-from django.db.models.signals import post_save, post_delete, pre_delete
-from django.dispatch import receiver
+from django.db.models.signals import post_save, post_delete
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
@@ -24,8 +23,8 @@ class DaneArkusza(models.Model):
 
 
     def getDataFromSheet():
+        post_save.disconnect(updateSheet)
         x = DaneArkusza.sheet.get_all_values()[1:]
-        post_save.disconnect(DaneArkusza, dispatch_uid='Sygnal')
         try:
             for i in x:
                 if i[0] =='':
@@ -49,15 +48,20 @@ class DaneArkusza(models.Model):
                     record.save()
         except IndexError:
             pass
+        
+        updateSheet(DaneArkusza)
+        post_save.connect(updateSheet)
 
 
-@receiver(post_save, sender = DaneArkusza)
 def updateSheet(sender, **kwargs):
     data = list(DaneArkusza.objects.values_list())
     DaneArkusza.sheet.update('A2',data)
 
-@receiver(post_delete, sender = DaneArkusza)
+post_save.connect(updateSheet)
+
+
 def deleteSheetData(sender, **kwargs):
+    print("USUWAMY")
     x = list(DaneArkusza.objects.values_list('id', flat=True))
     y = DaneArkusza.sheet.col_values(1)[1:]
     while '' in y:
@@ -71,6 +75,9 @@ def deleteSheetData(sender, **kwargs):
    
     z = DaneArkusza.sheet.find(str(a[0]))
     DaneArkusza.sheet.delete_row(z.row)
+
+post_delete.connect(deleteSheetData)
+
 
 """
 TODO
