@@ -20,8 +20,8 @@ class AdmSite(admin.ModelAdmin):
             url(r"^getData/$", getData)
         ]
         return my_urls + urls
-    list_display = ['Imie', 'Nazwisko', 'Email', 'Numer_telefonu', 'Adres']
+    list_display = ['id', 'Imie', 'Nazwisko', 'Email', 'Numer_telefonu', 'Adres']
     change_list_template = "admin/changelist.html"
-    search_fields = ['Imie', 'Nazwisko']
+    search_fields = ['id', 'Imie', 'Nazwisko']
 
 admin.site.register(DaneArkusza, AdmSite)

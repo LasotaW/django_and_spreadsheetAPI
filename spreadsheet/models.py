@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.signals import post_save, post_delete
+from django.core.signals import request_finished
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
@@ -25,6 +26,10 @@ class DaneArkusza(models.Model):
     def getDataFromSheet():
         post_save.disconnect(updateSheet)
         x = DaneArkusza.sheet.get_all_values()[1:]
+        j = ['', '', '', '', '', '']
+        while j in x:
+            x.remove(j)
+            
         try:
             for i in x:
                 if i[0] =='':
@@ -52,11 +57,21 @@ class DaneArkusza(models.Model):
         updateSheet(DaneArkusza)
         post_save.connect(updateSheet)
 
-
 def updateSheet(sender, **kwargs):
     data = list(DaneArkusza.objects.values_list())
-    DaneArkusza.sheet.update('A2',data)
+    x = DaneArkusza.sheet.get_all_values()[1:]
+    print(x, "\n\n**************\n\n")
+    j = ('', '', '', '', '', '')
+    z = 0
+    for i in x:
+        if i == ['', '', '', '', '', '']:
+            data.insert(z, j)
+            z += 1
+        else:
+            z += 1
 
+    print(data)
+    DaneArkusza.sheet.update('A2', data)
 post_save.connect(updateSheet)
 
 
@@ -72,13 +87,20 @@ def deleteSheetData(sender, **kwargs):
         a.remove('')
     except ValueError:
         pass
-   
-    z = DaneArkusza.sheet.find(str(a[0]))
-    DaneArkusza.sheet.delete_row(z.row)
+    try:
+        z = DaneArkusza.sheet.find(str(a[0]))
+        DaneArkusza.sheet.delete_row(z.row)
+    except IndexError:
+        pass
 
 post_delete.connect(deleteSheetData)
 
+"""
+def test(**kwargs):
+    DaneArkusza.getDataFromSheet()
 
+request_finished.connect(test)
+"""
 """
 TODO
 class Faktura(models.Model):
