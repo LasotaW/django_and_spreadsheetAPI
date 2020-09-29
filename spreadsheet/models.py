@@ -25,13 +25,13 @@ class DaneArkusza(models.Model):
 
     def getDataFromSheet():
         post_save.disconnect(updateSheet)
-        x = DaneArkusza.sheet.get_all_values()[1:]
-        j = ['', '', '', '', '', '']
-        while j in x:
-            x.remove(j)
+        sheetData = DaneArkusza.sheet.get_all_values()[1:]
+        emptyRow = ['', '', '', '', '', '']
+        while emptyRow in sheetData:
+            sheetData.remove(emptyRow)
             
         try:
-            for i in x:
+            for i in sheetData:
                 if i[0] =='':
                     record = DaneArkusza(
                         Imie = i[1],
@@ -57,39 +57,51 @@ class DaneArkusza(models.Model):
         updateSheet(DaneArkusza)
         post_save.connect(updateSheet)
 
+
+class Faktura(models.Model):
+    Klient = models.ForeignKey(DaneArkusza, on_delete=models.CASCADE, related_name='klient')
+    Sprzedawca = models.ForeignKey(DaneArkusza, on_delete=models.CASCADE, related_name='sprzedawca')
+    Kwota_faktury = models.IntegerField()
+    Data_wystawienia = models.DateField()
+    Opłacona = models.BooleanField()
+
+    class Meta:
+        verbose_name_plural = "Faktury"
+
+    def __str__(self):
+        return f'Faktura {self.id}'
+
+
 def updateSheet(sender, **kwargs):
     data = list(DaneArkusza.objects.values_list())
-    x = DaneArkusza.sheet.get_all_values()[1:]
-    print(x, "\n\n**************\n\n")
-    j = ('', '', '', '', '', '')
-    z = 0
-    for i in x:
+    sheetData = DaneArkusza.sheet.get_all_values()[1:]
+    emptyRowAsTuple = ('', '', '', '', '', '')
+    elementCounter = 0
+    for i in sheetData:
         if i == ['', '', '', '', '', '']:
-            data.insert(z, j)
-            z += 1
+            data.insert(elementCounter, emptyRowAsTuple)
+            elementCounter += 1
         else:
-            z += 1
+            elementCounter += 1
 
-    print(data)
     DaneArkusza.sheet.update('A2', data)
 post_save.connect(updateSheet)
 
 
 def deleteSheetData(sender, **kwargs):
-    print("USUWAMY")
-    x = list(DaneArkusza.objects.values_list('id', flat=True))
-    y = DaneArkusza.sheet.col_values(1)[1:]
-    while '' in y:
-        y.remove('')
-    y = list(map(int, y))
-    a = list(set(y) - set(x))
+    dbRecords = list(DaneArkusza.objects.values_list('id', flat=True))
+    sheetData = DaneArkusza.sheet.col_values(1)[1:]
+    while '' in sheetData:
+        sheetData.remove('')
+    sheetData = list(map(int, sheetData))
+    difference = list(set(sheetData) - set(dbRecords))
     try:
-        a.remove('')
+        difference.remove('')
     except ValueError:
         pass
     try:
-        z = DaneArkusza.sheet.find(str(a[0]))
-        DaneArkusza.sheet.delete_row(z.row)
+        foundDifferences = DaneArkusza.sheet.find(str(difference[0]))
+        DaneArkusza.sheet.delete_row(foundDifferences.row)
     except IndexError:
         pass
 
@@ -101,14 +113,4 @@ def test(**kwargs):
 
 request_finished.connect(test)
 """
-"""
-TODO
-class Faktura(models.Model):
-    id = models.AutoField()
-    Klient = models.ForeignKey()
-    Sprzedawca = models.ForeignKey()
-    Kwota_faktury = models.IntegerField()
-    Data_wystawienia = models.DateField()
-    Opłacona = models.BooleanField()
 
-"""

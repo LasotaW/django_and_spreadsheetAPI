@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import DaneArkusza
+from .models import DaneArkusza, Faktura
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf.urls import url
 from django.http import HttpResponseRedirect
@@ -25,3 +25,4 @@ class AdmSite(admin.ModelAdmin):
     search_fields = ['id', 'Imie', 'Nazwisko']
 
 admin.site.register(DaneArkusza, AdmSite)
+admin.site.register(Faktura)
