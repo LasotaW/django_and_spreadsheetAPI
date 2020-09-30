@@ -4,6 +4,7 @@ from django.core.signals import request_finished
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
+
 class DaneArkusza(models.Model):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
@@ -53,9 +54,6 @@ class DaneArkusza(models.Model):
                     record.save()
         except IndexError:
             pass
-        
-        updateSheet(DaneArkusza)
-        post_save.connect(updateSheet)
 
 
 class Faktura(models.Model):
@@ -73,37 +71,68 @@ class Faktura(models.Model):
 
 
 def updateSheet(sender, **kwargs):
-    data = list(DaneArkusza.objects.values_list())
+    dbRecords = list(DaneArkusza.objects.values_list())
     sheetData = DaneArkusza.sheet.get_all_values()[1:]
-    emptyRowAsTuple = ('', '', '', '', '', '')
+    emptyRow = ('', '', '', '', '', '')
     elementCounter = 0
+    #----------------------
+
+    y = DaneArkusza.sheet.col_values(1)[1:]
+    while '' in y:
+        y.remove('')
+    y = list(map(int, y))
+
+    x = 0
+    for e in y:
+        for i in dbRecords:
+            if i != emptyRow:
+                try:
+                    dbRecords[x] = list(DaneArkusza.objects.filter(id=e).values_list()[0])
+                    x += 1
+                    break
+                except IndexError:
+                    pass
+            else:
+                x += 1
+                continue
+
+    #----------------------
     for i in sheetData:
         if i == ['', '', '', '', '', '']:
-            data.insert(elementCounter, emptyRowAsTuple)
+            dbRecords.insert(elementCounter, emptyRow)
             elementCounter += 1
         else:
             elementCounter += 1
 
-    DaneArkusza.sheet.update('A2', data)
+    print(dbRecords)
+    DaneArkusza.sheet.update('A2', dbRecords)
+   
+   
 post_save.connect(updateSheet)
 
 
 def deleteSheetData(sender, **kwargs):
-    dbRecords = list(DaneArkusza.objects.values_list('id', flat=True))
-    sheetData = DaneArkusza.sheet.col_values(1)[1:]
-    while '' in sheetData:
-        sheetData.remove('')
-    sheetData = list(map(int, sheetData))
-    difference = list(set(sheetData) - set(dbRecords))
+    recordsId = list(DaneArkusza.objects.values_list('id', flat=True))
+    idsFromSheet = DaneArkusza.sheet.col_values(1)[1:]
+    while '' in idsFromSheet:
+        idsFromSheet.remove('')
+
+    idsFromSheet = list(map(int, idsFromSheet))
+    difference = list(set(idsFromSheet) - set(recordsId))
+
     try:
         difference.remove('')
     except ValueError:
         pass
+
     try:
         foundDifferences = DaneArkusza.sheet.find(str(difference[0]))
-        DaneArkusza.sheet.delete_row(foundDifferences.row)
+        x = 'A' + str(foundDifferences.row)
+        i = [['', '', '', '', '', '']]
+        DaneArkusza.sheet.update(x, i)
     except IndexError:
         pass
+
 
 post_delete.connect(deleteSheetData)
 
