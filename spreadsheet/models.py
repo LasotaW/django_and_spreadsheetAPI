@@ -55,6 +55,7 @@ class DaneArkusza(models.Model):
         except IndexError:
             pass
 
+        post_save.connect(updateSheet)
 
 class Faktura(models.Model):
     Klient = models.ForeignKey(DaneArkusza, on_delete=models.CASCADE, related_name='klient')
@@ -77,23 +78,23 @@ def updateSheet(sender, **kwargs):
     elementCounter = 0
     #----------------------
 
-    y = DaneArkusza.sheet.col_values(1)[1:]
+    sheetElemsIDs = DaneArkusza.sheet.col_values(1)[1:]
     while '' in y:
-        y.remove('')
-    y = list(map(int, y))
+        sheetElemsIDs.remove('')
+    sheetElemsIDs = list(map(int, sheetElemsIDs))
 
-    x = 0
-    for e in y:
+    elem = 0
+    for e in sheetElemsIDs:
         for i in dbRecords:
             if i != emptyRow:
                 try:
                     dbRecords[x] = list(DaneArkusza.objects.filter(id=e).values_list()[0])
-                    x += 1
+                    elem += 1
                     break
                 except IndexError:
                     pass
             else:
-                x += 1
+                elem += 1
                 continue
 
     #----------------------
@@ -104,7 +105,6 @@ def updateSheet(sender, **kwargs):
         else:
             elementCounter += 1
 
-    print(dbRecords)
     DaneArkusza.sheet.update('A2', dbRecords)
    
    
