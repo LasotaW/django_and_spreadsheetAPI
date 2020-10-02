@@ -3,8 +3,6 @@ from .models import DaneArkusza, Faktura
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf.urls import url
 from django.http import HttpResponseRedirect
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
 
 
 @staff_member_required

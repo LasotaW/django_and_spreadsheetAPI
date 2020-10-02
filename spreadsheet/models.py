@@ -52,9 +52,10 @@ class DaneArkusza(models.Model):
                         Adres = i[5]
                     )
                     record.save()
+
         except IndexError:
             pass
-
+        
         post_save.connect(updateSheet)
 
 class Faktura(models.Model):
