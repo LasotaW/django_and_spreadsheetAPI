@@ -79,7 +79,7 @@ def updateSheet(sender, **kwargs):
     #----------------------
 
     sheetElemsIDs = DaneArkusza.sheet.col_values(1)[1:]
-    while '' in y:
+    while '' in sheetElemsIDs:
         sheetElemsIDs.remove('')
     sheetElemsIDs = list(map(int, sheetElemsIDs))
 
