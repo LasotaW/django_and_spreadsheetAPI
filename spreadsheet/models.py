@@ -76,6 +76,7 @@ def updateSheet(sender, **kwargs):
     sheetData = DaneArkusza.sheet.get_all_values()[1:]
     emptyRow = ('', '', '', '', '', '')
     elementCounter = 0
+
     #----------------------
     
     sheetElemsIDs = DaneArkusza.sheet.col_values(1)[1:]
@@ -93,12 +94,14 @@ def updateSheet(sender, **kwargs):
             except IndexError:
                 pass
     #----------------------
+
     for i in sheetData:
-        if i[0] == '':
+        if i == ['', '', '', '', '', '']:
             dbRecords.insert(elementCounter, emptyRow)
             elementCounter += 1
         else:
             elementCounter += 1
+
     DaneArkusza.sheet.update('A2', dbRecords)
    
 post_save.connect(updateSheet)
@@ -120,9 +123,9 @@ def deleteSheetData(sender, **kwargs):
 
     try:
         foundDifferences = DaneArkusza.sheet.find(str(difference[0]))
-        x = 'A' + str(foundDifferences.row)
-        i = [['', '', '', '', '', '']]
-        DaneArkusza.sheet.update(x, i)
+        notation = 'A' + str(foundDifferences.row)
+        clearValue = [['', '', '', '', '', '']]
+        DaneArkusza.sheet.update(notation, clearValue)
     except IndexError:
         pass
 
