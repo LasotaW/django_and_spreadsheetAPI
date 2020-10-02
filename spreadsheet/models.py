@@ -77,7 +77,7 @@ def updateSheet(sender, **kwargs):
     emptyRow = ('', '', '', '', '', '')
     elementCounter = 0
     #----------------------
-
+    
     sheetElemsIDs = DaneArkusza.sheet.col_values(1)[1:]
     while '' in sheetElemsIDs:
         sheetElemsIDs.remove('')
@@ -86,27 +86,20 @@ def updateSheet(sender, **kwargs):
     elem = 0
     for e in sheetElemsIDs:
         for i in dbRecords:
-            if i != emptyRow:
-                try:
-                    dbRecords[elem] = list(DaneArkusza.objects.filter(id=e).values_list()[0])
-                    elem += 1
-                    break
-                except IndexError:
-                    pass
-            else:
+            try:
+                dbRecords[elem] = list(DaneArkusza.objects.filter(id=e).values_list()[0])
                 elem += 1
-                continue
-
+                break
+            except IndexError:
+                pass
     #----------------------
     for i in sheetData:
-        if i == ['', '', '', '', '', '']:
+        if i[0] == '':
             dbRecords.insert(elementCounter, emptyRow)
             elementCounter += 1
         else:
             elementCounter += 1
-
     DaneArkusza.sheet.update('A2', dbRecords)
-   
    
 post_save.connect(updateSheet)
 
