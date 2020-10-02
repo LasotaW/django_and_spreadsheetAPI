@@ -88,7 +88,7 @@ def updateSheet(sender, **kwargs):
         for i in dbRecords:
             if i != emptyRow:
                 try:
-                    dbRecords[x] = list(DaneArkusza.objects.filter(id=e).values_list()[0])
+                    dbRecords[elem] = list(DaneArkusza.objects.filter(id=e).values_list()[0])
                     elem += 1
                     break
                 except IndexError:
